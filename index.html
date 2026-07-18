@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأفعال الفرنسية الشائعة</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#f6f2e7">
+<link rel="icon" href="icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="أفعال فرنسية">
+<style>
+  :root{
+    --cream:#f6f2e7;
+    --ink:#232019;
+    --past:#a8283b;
+    --present:#1d4e89;
+    --futur:#d6912b;
+    --card:#fffdf8;
+    --line:#e3dbc8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:"Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif;
+    min-height:100vh;
+    padding:28px 14px 60px;
+  }
+  .fr{ font-family: Georgia, "Times New Roman", serif; direction:ltr; }
+
+  h1{
+    text-align:center;
+    font-size:1.15rem;
+    margin:0 0 4px;
+    letter-spacing:.3px;
+  }
+  .sub{
+    text-align:center;
+    font-size:.85rem;
+    color:#6b6455;
+    margin:0 0 22px;
+  }
+
+  .clouds{
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    max-width:760px;
+    margin:0 auto 18px;
+    direction:ltr;
+  }
+  .cloud{
+    flex:1;
+    text-align:center;
+    font-family: Georgia, serif;
+    font-weight:700;
+    font-size:1.05rem;
+    padding:12px 6px;
+    border-radius:40px;
+    border:2.5px solid var(--c);
+    background:var(--card);
+    color:var(--ink);
+    position:relative;
+  }
+  .cloud::before, .cloud::after{
+    content:"";
+    position:absolute;
+    background:var(--card);
+    border:2.5px solid var(--c);
+    border-radius:50%;
+    width:16px;height:16px;
+    top:-8px;
+  }
+  .cloud::before{ left:14%; }
+  .cloud::after{ right:14%; }
+  .cloud.past{ --c: var(--past); }
+  .cloud.present{ --c: var(--present); }
+  .cloud.futur{ --c: var(--futur); }
+
+  .grid{
+    max-width:760px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:2px 10px;
+    direction:ltr;
+  }
+  .word{
+    font-family: Georgia, serif;
+    font-size:1.15rem;
+    padding:9px 8px;
+    border-radius:10px;
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color: transparent;
+    transition:background .15s, transform .1s;
+    text-align:center;
+    line-height:1.3;
+  }
+  .word:active{ transform:scale(0.96); }
+  .word.speaking{
+    animation:pulse .5s ease;
+  }
+  @keyframes pulse{
+    0%{ background:rgba(0,0,0,0.08); }
+    100%{ background:transparent; }
+  }
+  .col-past{ color:var(--past); }
+  .col-present{ color:var(--present); }
+  .col-futur{ color:var(--futur); }
+
+  .hint{
+    text-align:center;
+    margin-top:26px;
+    font-size:.8rem;
+    color:#8a8371;
+    line-height:1.8;
+  }
+  .hint b{ color:#5c5646; }
+
+  .sig{
+    text-align:center;
+    margin-top:34px;
+    font-family:'Brush Script MT', cursive;
+    font-style:italic;
+    color:#3a362c;
+    opacity:.75;
+  }
+
+  /* ---- Overlay ---- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(30,26,18,0.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:16px;
+    backdrop-filter: blur(2px);
+  }
+  .overlay.show{ display:flex; }
+  .popup{
+    background:var(--card);
+    border-radius:18px;
+    max-width:420px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+    padding:22px 20px 24px;
+    box-shadow:0 20px 50px rgba(0,0,0,.3);
+    position:relative;
+    animation: pop .18s ease;
+  }
+  @keyframes pop{
+    from{ transform:scale(.92); opacity:0; }
+    to{ transform:scale(1); opacity:1; }
+  }
+  .popup .close{
+    position:absolute;
+    top:10px; left:10px;
+    background:var(--line);
+    border:none;
+    width:30px;height:30px;
+    border-radius:50%;
+    font-size:1rem;
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .popup .infinitive{
+    font-family:Georgia, serif;
+    direction:ltr;
+    text-align:center;
+    font-size:1.5rem;
+    font-weight:700;
+    color:var(--ink);
+    margin:6px 0 2px;
+  }
+  .popup .infinitive-ar{
+    text-align:center;
+    font-size:.95rem;
+    color:#7a7360;
+    margin-bottom:16px;
+  }
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .tab-btn{
+    flex:1;
+    padding:10px 6px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:#fbf8f0;
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .tab-btn.active{
+    background:var(--ink);
+    color:var(--cream);
+    border-color:var(--ink);
+  }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .conj-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:9px 4px;
+    border-bottom:1px solid var(--line);
+    direction:ltr;
+    font-family:Georgia, serif;
+    font-size:1.02rem;
+    cursor:pointer;
+  }
+  .conj-row:last-child{ border-bottom:none; }
+  .conj-row .pron{
+    color:#8a8371;
+    font-size:.85rem;
+    width:70px;
+  }
+  .conj-row .verbform{ flex:1; text-align:left; }
+  .conj-row .speak-ic{ opacity:.5; font-size:.9rem; }
+
+  .tense-block{ margin-bottom:16px; }
+  .tense-label{
+    font-weight:700;
+    font-size:.8rem;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    margin-bottom:4px;
+    padding-right:2px;
+  }
+  .tense-label.past{ color:var(--past); }
+  .tense-label.present{ color:var(--present); }
+  .tense-label.futur{ color:var(--futur); }
+
+  .translation-box{
+    text-align:center;
+    padding:20px 10px;
+  }
+  .translation-box .ar-word{
+    font-size:1.8rem;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .translation-box .ar-note{
+    font-size:.85rem;
+    color:#8a8371;
+  }
+</style>
+</head>
+<body>
+
+<h1>الأزمنة الفرنسية الثلاثة</h1>
+<p class="sub">اضغط على الكلمة لنطقها — اضغط مطولًا لعرض التفاصيل</p>
+
+<div class="clouds">
+  <div class="cloud past">Past</div>
+  <div class="cloud present">Present</div>
+  <div class="cloud futur">Futur</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<p class="hint"><b>نقرة واحدة</b> = نطق الكلمة &nbsp;|&nbsp; <b>ضغط مطول</b> = المصدر + التصريف الكامل + الترجمة</p>
+
+<div class="sig">Clem</div>
+
+<!-- Overlay / Popup -->
+<div class="overlay" id="overlay">
+  <div class="popup" id="popup">
+    <button class="close" id="closeBtn">✕</button>
+    <div class="infinitive fr" id="infinitiveWord"></div>
+    <div class="infinitive-ar" id="infinitiveAr"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="conj">التصريف الكامل</button>
+      <button class="tab-btn" data-tab="tr">الترجمة</button>
+    </div>
+
+    <div class="panel active" id="panel-conj"></div>
+    <div class="panel" id="panel-tr">
+      <div class="translation-box">
+        <div class="ar-word" id="trWord"></div>
+        <div class="ar-note">المصدر (infinitif)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------------- DATA ----------------
+// Each verb: infinitive, arabic meaning, and conjugations for je/tu/il/nous/vous/ils
+// across passé composé, présent, futur simple.
+
+const verbs = [
+  {
+    inf: "être", ar: "أن يكون",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai été","tu as été","il a été","nous avons été","vous avez été","ils ont été"],
+    present: ["je suis","tu es","il est","nous sommes","vous êtes","ils sont"],
+    futur:   ["je serai","tu seras","il sera","nous serons","vous serez","ils seront"]
+  },
+  {
+    inf: "avoir", ar: "أن يملك",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai eu","tu as eu","il a eu","nous avons eu","vous avez eu","ils ont eu"],
+    present: ["j'ai","tu as","il a","nous avons","vous avez","ils ont"],
+    futur:   ["j'aurai","tu auras","il aura","nous aurons","vous aurez","ils auront"]
+  },
+  {
+    inf: "faire", ar: "أن يفعل / يصنع",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai fait","tu as fait","il a fait","nous avons fait","vous avez fait","ils ont fait"],
+    present: ["je fais","tu fais","il fait","nous faisons","vous faites","ils font"],
+    futur:   ["je ferai","tu feras","il fera","nous ferons","vous ferez","ils feront"]
+  },
+  {
+    inf: "dire", ar: "أن يقول",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai dit","tu as dit","il a dit","nous avons dit","vous avez dit","ils ont dit"],
+    present: ["je dis","tu dis","il dit","nous disons","vous dites","ils disent"],
+    futur:   ["je dirai","tu diras","il dira","nous dirons","vous direz","ils diront"]
+  },
+  {
+    inf: "prendre", ar: "أن يأخذ",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai pris","tu as pris","il a pris","nous avons pris","vous avez pris","ils ont pris"],
+    present: ["je prends","tu prends","il prend","nous prenons","vous prenez","ils prennent"],
+    futur:   ["je prendrai","tu prendras","il prendra","nous prendrons","vous prendrez","ils prendront"]
+  },
+  {
+    inf: "voir", ar: "أن يرى",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai vu","tu as vu","il a vu","nous avons vu","vous avez vu","ils ont vu"],
+    present: ["je vois","tu vois","il voit","nous voyons","vous voyez","ils voient"],
+    futur:   ["je verrai","tu verras","il verra","nous verrons","vous verrez","ils verront"]
+  },
+  {
+    inf: "aimer", ar: "أن يحب",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai aimé","tu as aimé","il a aimé","nous avons aimé","vous avez aimé","ils ont aimé"],
+    present: ["j'aime","tu aimes","il aime","nous aimons","vous aimez","ils aiment"],
+    futur:   ["j'aimerai","tu aimeras","il aimera","nous aimerons","vous aimerez","ils aimeront"]
+  },
+  {
+    inf: "mettre", ar: "أن يضع",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai mis","tu as mis","il a mis","nous avons mis","vous avez mis","ils ont mis"],
+    present: ["je mets","tu mets","il met","nous mettons","vous mettez","ils mettent"],
+    futur:   ["je mettrai","tu mettras","il mettra","nous mettrons","vous mettrez","ils mettront"]
+  },
+  {
+    inf: "pouvoir", ar: "أن يستطيع",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai pu","tu as pu","il a pu","nous avons pu","vous avez pu","ils ont pu"],
+    present: ["je peux","tu peux","il peut","nous pouvons","vous pouvez","ils peuvent"],
+    futur:   ["je pourrai","tu pourras","il pourra","nous pourrons","vous pourrez","ils pourront"]
+  },
+  {
+    inf: "vouloir", ar: "أن يريد",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai voulu","tu as voulu","il a voulu","nous avons voulu","vous avez voulu","ils ont voulu"],
+    present: ["je veux","tu veux","il veut","nous voulons","vous voulez","ils veulent"],
+    futur:   ["je voudrai","tu voudras","il voudra","nous voudrons","vous voudrez","ils voudront"]
+  },
+  {
+    inf: "donner", ar: "أن يعطي",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai donné","tu as donné","il a donné","nous avons donné","vous avez donné","ils ont donné"],
+    present: ["je donne","tu donnes","il donne","nous donnons","vous donnez","ils donnent"],
+    futur:   ["je donnerai","tu donneras","il donnera","nous donnerons","vous donnerez","ils donneront"]
+  },
+  {
+    inf: "trouver", ar: "أن يجد",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai trouvé","tu as trouvé","il a trouvé","nous avons trouvé","vous avez trouvé","ils ont trouvé"],
+    present: ["je trouve","tu trouves","il trouve","nous trouvons","vous trouvez","ils trouvent"],
+    futur:   ["je trouverai","tu trouveras","il trouvera","nous trouverons","vous trouverez","ils trouveront"]
+  },
+  {
+    inf: "essayer", ar: "أن يحاول",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai essayé","tu as essayé","il a essayé","nous avons essayé","vous avez essayé","ils ont essayé"],
+    present: ["j'essaie","tu essaies","il essaie","nous essayons","vous essayez","ils essaient"],
+    futur:   ["j'essaierai","tu essaieras","il essaiera","nous essaierons","vous essaierez","ils essaieront"]
+  },
+  {
+    inf: "devoir", ar: "يجب أن / يدين بـ",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai dû","tu as dû","il a dû","nous avons dû","vous avez dû","ils ont dû"],
+    present: ["je dois","tu dois","il doit","nous devons","vous devez","ils doivent"],
+    futur:   ["je devrai","tu devras","il devra","nous devrons","vous devrez","ils devront"]
+  },
+  {
+    inf: "penser", ar: "أن يفكر",
+    pron: ["je","tu","il/elle","nous","vous","ils/elles"],
+    past:    ["j'ai pensé","tu as pensé","il a pensé","nous avons pensé","vous avez pensé","ils ont pensé"],
+    present: ["je pense","tu penses","il pense","nous pensons","vous pensez","ils pensent"],
+    futur:   ["je penserai","tu penseras","il pensera","nous penserons","vous penserez","ils penseront"]
+  }
+];
+
+// ---------------- BUILD GRID ----------------
+const grid = document.getElementById('grid');
+
+verbs.forEach((v, idx) => {
+  ['past','present','futur'].forEach(tense => {
+    const div = document.createElement('div');
+    div.className = 'word col-' + tense + ' fr';
+    div.textContent = v[tense][0];
+    div.dataset.verbIdx = idx;
+    div.dataset.tense = tense;
+    attachHandlers(div, v[tense][0], idx);
+    grid.appendChild(div);
+  });
+});
+
+// ---------------- SPEECH ----------------
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'fr-FR';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
+// ---------------- LONG PRESS vs TAP ----------------
+function attachHandlers(el, word, verbIdx){
+  let timer = null;
+  let longPressed = false;
+  const LONG_MS = 480;
+
+  function start(e){
+    longPressed = false;
+    timer = setTimeout(() => {
+      longPressed = true;
+      if(navigator.vibrate) navigator.vibrate(15);
+      openPopup(verbIdx);
+    }, LONG_MS);
+  }
+  function cancel(){
+    clearTimeout(timer);
+  }
+  function end(){
+    clearTimeout(timer);
+    if(!longPressed){
+      el.classList.remove('speaking');
+      void el.offsetWidth;
+      el.classList.add('speaking');
+      speak(word);
+    }
+  }
+
+  el.addEventListener('touchstart', start, {passive:true});
+  el.addEventListener('touchend', end);
+  el.addEventListener('touchmove', cancel);
+  el.addEventListener('touchcancel', cancel);
+
+  el.addEventListener('mousedown', start);
+  el.addEventListener('mouseup', end);
+  el.addEventListener('mouseleave', cancel);
+
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+// ---------------- POPUP ----------------
+const overlay = document.getElementById('overlay');
+const popup = document.getElementById('popup');
+const infinitiveWord = document.getElementById('infinitiveWord');
+const infinitiveAr = document.getElementById('infinitiveAr');
+const panelConj = document.getElementById('panel-conj');
+const trWord = document.getElementById('trWord');
+const closeBtn = document.getElementById('closeBtn');
+const tabBtns = document.querySelectorAll('.tab-btn');
+
+function openPopup(idx){
+  const v = verbs[idx];
+  infinitiveWord.textContent = v.inf;
+  infinitiveAr.textContent = v.ar;
+  trWord.textContent = v.ar;
+
+  // Build conjugation panel
+  panelConj.innerHTML = '';
+  const tenseInfo = [
+    {key:'past', label:'Passé composé', cls:'past'},
+    {key:'present', label:'Présent', cls:'present'},
+    {key:'futur', label:'Futur simple', cls:'futur'}
+  ];
+  tenseInfo.forEach(t => {
+    const block = document.createElement('div');
+    block.className = 'tense-block';
+    const label = document.createElement('div');
+    label.className = 'tense-label ' + t.cls;
+    label.textContent = t.label;
+    block.appendChild(label);
+
+    v[t.key].forEach((form, i) => {
+      const row = document.createElement('div');
+      row.className = 'conj-row';
+      row.innerHTML = `<span class="pron">${v.pron[i]}</span><span class="verbform">${form}</span><span class="speak-ic">🔊</span>`;
+      row.addEventListener('click', () => speak(form));
+      block.appendChild(row);
+    });
+    panelConj.appendChild(block);
+  });
+
+  // reset tabs
+  tabBtns.forEach(b => b.classList.remove('active'));
+  tabBtns[0].classList.add('active');
+  document.getElementById('panel-conj').classList.add('active');
+  document.getElementById('panel-tr').classList.remove('active');
+
+  overlay.classList.add('show');
+}
+
+closeBtn.addEventListener('click', () => overlay.classList.remove('show'));
+overlay.addEventListener('click', (e) => {
+  if(e.target === overlay) overlay.classList.remove('show');
+});
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------------- PWA: SERVICE WORKER ----------------
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
